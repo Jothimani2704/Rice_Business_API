@@ -1,0 +1,81 @@
+## ==============================================
+## .gitignore for RiceBusinessApp (.NET / ASP.NET Core)
+## ==============================================
+
+# -----------------------------------------------
+# Build Output
+# -----------------------------------------------
+[Bb]in/
+[Oo]bj/
+
+# -----------------------------------------------
+# Visual Studio Files
+# -----------------------------------------------
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.vcxproj.filters
+*.VC.db
+*.VC.opendb
+
+# VS document layout
+DocumentLayout.json
+DocumentLayout.backup.json
+
+# -----------------------------------------------
+# NuGet
+# -----------------------------------------------
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+packages/
+
+# -----------------------------------------------
+# .NET Build Cache / Temp Files
+# -----------------------------------------------
+*.dtbcache.v2
+*.futdcache.v2
+*.metadata.v10.bin
+*.projects.v10.bin
+*.strings.v10.bin
+applicationhost.config
+
+# -----------------------------------------------
+# Compiled Binaries
+# -----------------------------------------------
+*.dll
+*.exe
+*.pdb
+*.lib
+*.exp
+
+# -----------------------------------------------
+# Logs
+# -----------------------------------------------
+*.log
+logs/
+
+# -----------------------------------------------
+# OS Generated Files
+# -----------------------------------------------
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# -----------------------------------------------
+# Secrets & Sensitive Config
+# -----------------------------------------------
+appsettings.Development.json
+*secrets*.json
+
+# -----------------------------------------------
+# Test Coverage Output
+# -----------------------------------------------
+TestResults/
+coverage/
+*.coveragexml
+*.cobertura.xml
