@@ -1,0 +1,1 @@
+﻿namespace RiceBusinessApp.Application.DTOs.Stock { public class StockAdjustmentDto { public int ProductId { get; set; } public decimal NewQuantity { get; set; } public string? Remarks { get; set; } } }

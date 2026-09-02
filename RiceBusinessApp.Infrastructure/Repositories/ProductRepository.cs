@@ -1,0 +1,8 @@
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using RiceBusinessApp.Application.Interfaces;
+using RiceBusinessApp.Domain.Entities;
+using RiceBusinessApp.Infrastructure.Data;
+using System.Linq;
+namespace RiceBusinessApp.Infrastructure.Repositories { public class ProductRepository : IProductRepository { private readonly AppDbContext _context; public ProductRepository(AppDbContext context) { _context = context; } public async Task<Product?> GetByIdAsync(int id) => await _context.Products.FindAsync(id); public async Task<IEnumerable<Product>> GetAllAsync() => await _context.Products.ToListAsync(); public async Task<IEnumerable<Product>> GetAllAsync(bool includeInactive) => includeInactive ? await _context.Products.ToListAsync() : await _context.Products.Where(p => p.IsActive).ToListAsync(); public async Task<IEnumerable<Product>> SearchAsync(string query) => await _context.Products.Where(p => p.ProductName.Contains(query) || p.BrandName.Contains(query)).ToListAsync(); public async Task<bool> ExistsByNameAndBrandAsync(string name, string brand) => await _context.Products.AnyAsync(p => p.ProductName == name && p.BrandName == brand); public async Task<Product> AddAsync(Product product) { _context.Products.Add(product); await _context.SaveChangesAsync(); return product; } public async Task UpdateAsync(Product product) { _context.Products.Update(product); await _context.SaveChangesAsync(); } public async Task<bool> IsReferencedAsync(int id) => await _context.SaleItems.AnyAsync(si => si.ProductId == id) || await _context.StockTransactions.AnyAsync(st => st.ProductId == id); } }

@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="RiceBusinessApp.Api/RiceBusinessApp.Api.csproj" />
+  <Project Path="RiceBusinessApp.Application/RiceBusinessApp.Application.csproj" />
+  <Project Path="RiceBusinessApp.Domain/RiceBusinessApp.Domain.csproj" />
+  <Project Path="RiceBusinessApp.Infrastructure/RiceBusinessApp.Infrastructure.csproj" />
+  <Project Path="RiceBusinessApp.Tests/RiceBusinessApp.Tests.csproj" />
+</Solution>

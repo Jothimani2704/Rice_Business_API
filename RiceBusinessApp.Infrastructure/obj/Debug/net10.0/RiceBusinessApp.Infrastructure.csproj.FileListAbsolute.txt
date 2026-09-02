@@ -1,0 +1,17 @@
+C:\Users\Windows\.gemini\antigravity-ide\scratch\RiceBusinessApp\RiceBusinessApp.Infrastructure\bin\Debug\net10.0\RiceBusinessApp.Infrastructure.deps.json
+C:\Users\Windows\.gemini\antigravity-ide\scratch\RiceBusinessApp\RiceBusinessApp.Infrastructure\bin\Debug\net10.0\RiceBusinessApp.Infrastructure.dll
+C:\Users\Windows\.gemini\antigravity-ide\scratch\RiceBusinessApp\RiceBusinessApp.Infrastructure\bin\Debug\net10.0\RiceBusinessApp.Infrastructure.pdb
+C:\Users\Windows\.gemini\antigravity-ide\scratch\RiceBusinessApp\RiceBusinessApp.Infrastructure\bin\Debug\net10.0\RiceBusinessApp.Application.dll
+C:\Users\Windows\.gemini\antigravity-ide\scratch\RiceBusinessApp\RiceBusinessApp.Infrastructure\bin\Debug\net10.0\RiceBusinessApp.Domain.dll
+C:\Users\Windows\.gemini\antigravity-ide\scratch\RiceBusinessApp\RiceBusinessApp.Infrastructure\bin\Debug\net10.0\RiceBusinessApp.Domain.pdb
+C:\Users\Windows\.gemini\antigravity-ide\scratch\RiceBusinessApp\RiceBusinessApp.Infrastructure\bin\Debug\net10.0\RiceBusinessApp.Application.pdb
+C:\Users\Windows\.gemini\antigravity-ide\scratch\RiceBusinessApp\RiceBusinessApp.Infrastructure\obj\Debug\net10.0\RiceBusinessApp.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\Windows\.gemini\antigravity-ide\scratch\RiceBusinessApp\RiceBusinessApp.Infrastructure\obj\Debug\net10.0\RiceBusinessApp.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Windows\.gemini\antigravity-ide\scratch\RiceBusinessApp\RiceBusinessApp.Infrastructure\obj\Debug\net10.0\RiceBusinessApp.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\Windows\.gemini\antigravity-ide\scratch\RiceBusinessApp\RiceBusinessApp.Infrastructure\obj\Debug\net10.0\RiceBusinessApp.Infrastructure.AssemblyInfo.cs
+C:\Users\Windows\.gemini\antigravity-ide\scratch\RiceBusinessApp\RiceBusinessApp.Infrastructure\obj\Debug\net10.0\RiceBusinessApp.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\Windows\.gemini\antigravity-ide\scratch\RiceBusinessApp\RiceBusinessApp.Infrastructure\obj\Debug\net10.0\RiceBusi.BA6E9925.Up2Date
+C:\Users\Windows\.gemini\antigravity-ide\scratch\RiceBusinessApp\RiceBusinessApp.Infrastructure\obj\Debug\net10.0\RiceBusinessApp.Infrastructure.dll
+C:\Users\Windows\.gemini\antigravity-ide\scratch\RiceBusinessApp\RiceBusinessApp.Infrastructure\obj\Debug\net10.0\refint\RiceBusinessApp.Infrastructure.dll
+C:\Users\Windows\.gemini\antigravity-ide\scratch\RiceBusinessApp\RiceBusinessApp.Infrastructure\obj\Debug\net10.0\RiceBusinessApp.Infrastructure.pdb
+C:\Users\Windows\.gemini\antigravity-ide\scratch\RiceBusinessApp\RiceBusinessApp.Infrastructure\obj\Debug\net10.0\ref\RiceBusinessApp.Infrastructure.dll

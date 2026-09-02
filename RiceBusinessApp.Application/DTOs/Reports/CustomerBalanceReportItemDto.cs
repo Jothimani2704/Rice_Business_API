@@ -1,0 +1,2 @@
+﻿using System;
+namespace RiceBusinessApp.Application.DTOs.Reports { public class CustomerBalanceReportItemDto { public int CustomerId { get; set; } public string CustomerName { get; set; } = string.Empty; public string? PhoneNumber { get; set; } public decimal TotalSales { get; set; } public decimal TotalPayments { get; set; } public decimal OutstandingBalance { get; set; } public DateTime? LastTransactionDate { get; set; } } }

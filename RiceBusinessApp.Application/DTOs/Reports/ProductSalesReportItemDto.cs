@@ -1,0 +1,1 @@
+﻿namespace RiceBusinessApp.Application.DTOs.Reports { public class ProductSalesReportItemDto { public int ProductId { get; set; } public string ProductName { get; set; } = string.Empty; public string BrandName { get; set; } = string.Empty; public decimal QuantitySold { get; set; } public decimal SalesAmount { get; set; } public int NumberOfCustomersPurchased { get; set; } } }

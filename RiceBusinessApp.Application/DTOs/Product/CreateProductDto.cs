@@ -1,0 +1,1 @@
+namespace RiceBusinessApp.Application.DTOs.Product { public class CreateProductDto { public string BrandName { get; set; } = string.Empty; public string ProductName { get; set; } = string.Empty; public decimal BagSize { get; set; } public decimal PurchasePrice { get; set; } public decimal SellingPrice { get; set; } public decimal MinimumStockLevel { get; set; } } }

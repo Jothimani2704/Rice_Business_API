@@ -1,0 +1,1 @@
+﻿namespace RiceBusinessApp.Application.DTOs.Dashboard { public class DashboardStatsDto { public decimal TotalCollected { get; set; } public decimal TotalPending { get; set; } public decimal StockValue { get; set; } public int TotalCustomers { get; set; } public int LowStockCount { get; set; } } }
