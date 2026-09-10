@@ -9,6 +9,7 @@ using RiceBusinessApp.Application.DTOs.Auth;
 using RiceBusinessApp.Application.Interfaces;
 using RiceBusinessApp.Domain.Entities;
 using BCrypt.Net;
+using System.IO;
 
 namespace RiceBusinessApp.Application.Services
 {
@@ -42,6 +43,7 @@ namespace RiceBusinessApp.Application.Services
                     Id = user.Id,
                     Username = user.Username,
                     StoreName = user.StoreName,
+                    ProfileImageUrl = user.ProfileImageUrl,
                     Role = user.Role
                 }
             };
@@ -75,6 +77,7 @@ namespace RiceBusinessApp.Application.Services
                     Id = user.Id,
                     Username = user.Username,
                     StoreName = user.StoreName,
+                    ProfileImageUrl = user.ProfileImageUrl,
                     Role = user.Role
                 }
             };
@@ -90,6 +93,7 @@ namespace RiceBusinessApp.Application.Services
                 Id = user.Id,
                 Username = user.Username,
                 StoreName = user.StoreName,
+                ProfileImageUrl = user.ProfileImageUrl,
                 Role = user.Role
             };
         }
@@ -132,6 +136,53 @@ namespace RiceBusinessApp.Application.Services
                 Id = user.Id,
                 Username = user.Username,
                 StoreName = user.StoreName,
+                ProfileImageUrl = user.ProfileImageUrl,
+                Role = user.Role
+            };
+        }
+
+        public async Task<UserResponseDto> UploadProfileImageAsync(int userId, Stream fileStream, string fileName)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            if (fileStream == null || fileStream.Length == 0)
+            {
+                throw new Exception("No image uploaded");
+            }
+
+            // Generate a unique file name
+            var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(fileName)}";
+            
+            // Assuming the application runs from the root folder (RiceBusinessApp.Api)
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "profiles");
+            
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await fileStream.CopyToAsync(stream);
+            }
+
+            // Update user with the relative path
+            var imageUrl = $"/uploads/profiles/{uniqueFileName}";
+            user.ProfileImageUrl = imageUrl;
+            
+            await _userRepository.UpdateUserAsync(user);
+
+            return new UserResponseDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                StoreName = user.StoreName,
+                ProfileImageUrl = user.ProfileImageUrl,
                 Role = user.Role
             };
         }

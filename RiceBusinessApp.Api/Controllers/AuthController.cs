@@ -86,5 +86,32 @@ namespace RiceBusinessApp.Api.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [Authorize]
+        [HttpPost("profile-image")]
+        public async Task<IActionResult> UploadProfileImage(IFormFile image)
+        {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            if (image == null || image.Length == 0)
+            {
+                return BadRequest(new { message = "No image uploaded" });
+            }
+
+            try
+            {
+                using var stream = image.OpenReadStream();
+                var response = await _authService.UploadProfileImageAsync(userId, stream, image.FileName);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

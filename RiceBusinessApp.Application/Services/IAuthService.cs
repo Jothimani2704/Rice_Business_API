@@ -1,3 +1,4 @@
+using System.IO;
 using System.Threading.Tasks;
 using RiceBusinessApp.Application.DTOs.Auth;
 
@@ -9,5 +10,6 @@ namespace RiceBusinessApp.Application.Services
         Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request);
         Task<UserResponseDto?> GetCurrentUserAsync(int userId);
         Task<UserResponseDto> UpdateProfileAsync(int userId, UpdateProfileRequestDto request);
+        Task<UserResponseDto> UploadProfileImageAsync(int userId, Stream fileStream, string fileName);
     }
 }

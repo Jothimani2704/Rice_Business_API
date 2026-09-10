@@ -8,6 +8,7 @@ namespace RiceBusinessApp.Domain.Entities
         public string Username { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
         public string StoreName { get; set; } = "Vellore Rice Mart";
+        public string? ProfileImageUrl { get; set; }
         public string Role { get; set; } = "Admin";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

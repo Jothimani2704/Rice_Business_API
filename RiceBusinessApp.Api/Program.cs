@@ -137,6 +137,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "RiceBusinessApp API v1"));
 }
 
+app.UseStaticFiles();
+
+// Also serve the uploads directory explicitly if needed (or just let the default static files handle wwwroot)
+var uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "uploads");
+if (!Directory.Exists(uploadsPath))
+{
+    Directory.CreateDirectory(uploadsPath);
+}
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads"
+});
+
 // CORS must be before HTTPS redirection so Flutter Web HTTP requests are not blocked
 app.UseCors("AllowAll");
 
