@@ -41,6 +41,7 @@ namespace RiceBusinessApp.Application.Services
                 {
                     Id = user.Id,
                     Username = user.Username,
+                    StoreName = user.StoreName,
                     Role = user.Role
                 }
             };
@@ -73,6 +74,7 @@ namespace RiceBusinessApp.Application.Services
                 {
                     Id = user.Id,
                     Username = user.Username,
+                    StoreName = user.StoreName,
                     Role = user.Role
                 }
             };
@@ -87,6 +89,49 @@ namespace RiceBusinessApp.Application.Services
             {
                 Id = user.Id,
                 Username = user.Username,
+                StoreName = user.StoreName,
+                Role = user.Role
+            };
+        }
+
+        public async Task<UserResponseDto> UpdateProfileAsync(int userId, UpdateProfileRequestDto request)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            // If changing username, check if it already exists
+            if (user.Username != request.Username)
+            {
+                var existingUser = await _userRepository.GetUserByUsernameAsync(request.Username);
+                if (existingUser != null)
+                {
+                    throw new Exception("Username already exists");
+                }
+                user.Username = request.Username;
+            }
+
+            user.StoreName = request.StoreName;
+
+            // Password update
+            if (!string.IsNullOrEmpty(request.CurrentPassword) && !string.IsNullOrEmpty(request.NewPassword))
+            {
+                if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash))
+                {
+                    throw new Exception("Incorrect current password");
+                }
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            }
+
+            await _userRepository.UpdateUserAsync(user);
+
+            return new UserResponseDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                StoreName = user.StoreName,
                 Role = user.Role
             };
         }

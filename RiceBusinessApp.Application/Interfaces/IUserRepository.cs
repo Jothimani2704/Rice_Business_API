@@ -8,5 +8,6 @@ namespace RiceBusinessApp.Application.Interfaces
         Task<User?> GetUserByUsernameAsync(string username);
         Task<User?> GetUserByIdAsync(int id);
         Task<User> AddUserAsync(User user);
+        Task UpdateUserAsync(User user);
     }
 }

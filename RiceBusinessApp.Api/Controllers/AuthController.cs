@@ -65,5 +65,26 @@ namespace RiceBusinessApp.Api.Controllers
 
             return Ok(user);
         }
+
+        [Authorize]
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile(UpdateProfileRequestDto request)
+        {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                var response = await _authService.UpdateProfileAsync(userId, request);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

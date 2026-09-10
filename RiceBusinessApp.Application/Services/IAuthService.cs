@@ -8,5 +8,6 @@ namespace RiceBusinessApp.Application.Services
         Task<AuthResponseDto> LoginAsync(LoginRequestDto request);
         Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request);
         Task<UserResponseDto?> GetCurrentUserAsync(int userId);
+        Task<UserResponseDto> UpdateProfileAsync(int userId, UpdateProfileRequestDto request);
     }
 }
