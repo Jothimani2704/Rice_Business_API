@@ -137,9 +137,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "RiceBusinessApp API v1"));
 }
 
-app.UseHttpsRedirection();
-
+// CORS must be before HTTPS redirection so Flutter Web HTTP requests are not blocked
 app.UseCors("AllowAll");
+
+// Disable HTTPS redirection in Development — Flutter Web uses HTTP on localhost
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
