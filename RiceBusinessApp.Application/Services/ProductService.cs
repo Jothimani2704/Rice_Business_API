@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using RiceBusinessApp.Application.DTOs.Product;
 using RiceBusinessApp.Application.Interfaces;
 using RiceBusinessApp.Domain.Entities;
@@ -43,6 +45,12 @@ namespace RiceBusinessApp.Application.Services
                 throw new InvalidOperationException("A product with this name and brand already exists.");
             }
 
+            string? imageUrl = null;
+            if (dto.Image != null)
+            {
+                imageUrl = await SaveImageAsync(dto.Image);
+            }
+
             var product = new Product
             {
                 BrandName = dto.BrandName,
@@ -52,7 +60,8 @@ namespace RiceBusinessApp.Application.Services
                 SellingPrice = dto.SellingPrice,
                 MinimumStockLevel = dto.MinimumStockLevel,
                 CurrentStock = 0,
-                IsActive = true
+                IsActive = true,
+                ImageUrl = imageUrl
             };
 
             await _productRepository.AddAsync(product);
@@ -73,6 +82,22 @@ namespace RiceBusinessApp.Application.Services
                 throw new InvalidOperationException("A product with this name and brand already exists.");
             }
 
+            string? oldImageUrl = product.ImageUrl;
+            string? newImageUrl = null;
+            bool shouldDeleteOldImage = false;
+
+            if (dto.RemoveImage)
+            {
+                product.ImageUrl = null;
+                shouldDeleteOldImage = true;
+            }
+            else if (dto.Image != null)
+            {
+                newImageUrl = await SaveImageAsync(dto.Image);
+                product.ImageUrl = newImageUrl;
+                shouldDeleteOldImage = true;
+            }
+
             product.BrandName = dto.BrandName;
             product.ProductName = dto.ProductName;
             product.BagSize = dto.BagSize;
@@ -81,6 +106,12 @@ namespace RiceBusinessApp.Application.Services
             product.MinimumStockLevel = dto.MinimumStockLevel;
 
             await _productRepository.UpdateAsync(product);
+
+            if (shouldDeleteOldImage && !string.IsNullOrEmpty(oldImageUrl))
+            {
+                DeleteImage(oldImageUrl);
+            }
+
             return MapToDto(product);
         }
 
@@ -101,6 +132,59 @@ namespace RiceBusinessApp.Application.Services
             return true;
         }
 
+        private async Task<string> SaveImageAsync(IFormFile image)
+        {
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var extension = Path.GetExtension(image.FileName).ToLowerInvariant();
+
+            if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
+            {
+                throw new InvalidOperationException("Invalid image type. Only JPG, JPEG, PNG, and WebP are allowed.");
+            }
+
+            const long maxFileSize = 5 * 1024 * 1024; // 5 MB
+            if (image.Length > maxFileSize)
+            {
+                throw new InvalidOperationException("Image size exceeds the maximum limit of 5 MB.");
+            }
+
+            var uniqueFileName = $"{Guid.NewGuid()}{extension}";
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "products");
+
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await image.CopyToAsync(stream);
+            }
+
+            return $"/uploads/products/{uniqueFileName}";
+        }
+
+        private void DeleteImage(string imageUrl)
+        {
+            try
+            {
+                // imageUrl starts with "/uploads/products/"
+                var relativePath = imageUrl.TrimStart('/');
+                var fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", relativePath);
+
+                if (File.Exists(fullPath))
+                {
+                    File.Delete(fullPath);
+                }
+            }
+            catch
+            {
+                // Log the error if necessary, but don't fail the request if deleting old image fails
+            }
+        }
+
         private static ProductDto MapToDto(Product product)
         {
             return new ProductDto
@@ -115,7 +199,8 @@ namespace RiceBusinessApp.Application.Services
                 CurrentStock = product.CurrentStock,
                 IsActive = product.IsActive,
                 CreatedDate = product.CreatedDate,
-                UpdatedDate = product.UpdatedDate
+                UpdatedDate = product.UpdatedDate,
+                ImageUrl = product.ImageUrl
             };
         }
     }

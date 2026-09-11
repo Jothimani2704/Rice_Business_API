@@ -42,7 +42,7 @@ namespace RiceBusinessApp.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
+        public async Task<IActionResult> Create([FromForm] CreateProductDto dto)
         {
             try
             {
@@ -56,7 +56,7 @@ namespace RiceBusinessApp.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDto dto)
+        public async Task<IActionResult> Update(int id, [FromForm] UpdateProductDto dto)
         {
             try
             {

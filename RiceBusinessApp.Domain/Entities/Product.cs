@@ -16,6 +16,7 @@ namespace RiceBusinessApp.Domain.Entities
         public bool IsActive { get; set; } = true;
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedDate { get; set; }
+        public string? ImageUrl { get; set; }
 
         // Navigation properties
         public ICollection<Sale> Sales { get; set; } = new List<Sale>();
