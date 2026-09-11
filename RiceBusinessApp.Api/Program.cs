@@ -165,4 +165,24 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Run DB migration and seed default admin if no users exist
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
+
+    if (!dbContext.Users.Any())
+    {
+        dbContext.Users.Add(new RiceBusinessApp.Domain.Entities.User
+        {
+            Username = "admin",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+            StoreName = "Vellore Rice Mart",
+            Role = "Admin",
+            CreatedAt = DateTime.UtcNow
+        });
+        dbContext.SaveChanges();
+    }
+}
+
 app.Run();
