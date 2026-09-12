@@ -16,6 +16,7 @@ namespace RiceBusinessApp.Application.Services
         private readonly IProductRepository _productRepository;
         private readonly IStockTransactionRepository _stockTransactionRepository;
         private readonly ICustomerTransactionRepository _customerTransactionRepository;
+        private readonly IPaymentRepository _paymentRepository;
         private readonly IUnitOfWork _unitOfWork;
 
         public SaleService(
@@ -24,6 +25,7 @@ namespace RiceBusinessApp.Application.Services
             IProductRepository productRepository,
             IStockTransactionRepository stockTransactionRepository,
             ICustomerTransactionRepository customerTransactionRepository,
+            IPaymentRepository paymentRepository,
             IUnitOfWork unitOfWork)
         {
             _saleRepository = saleRepository;
@@ -31,6 +33,7 @@ namespace RiceBusinessApp.Application.Services
             _productRepository = productRepository;
             _stockTransactionRepository = stockTransactionRepository;
             _customerTransactionRepository = customerTransactionRepository;
+            _paymentRepository = paymentRepository;
             _unitOfWork = unitOfWork;
         }
 
@@ -130,6 +133,24 @@ namespace RiceBusinessApp.Application.Services
                 {
                     stockTx.ReferenceId = sale.Id;
                     await _stockTransactionRepository.AddAsync(stockTx);
+                }
+
+                // If PaidAmount > 0, record Payment entry
+                if (request.PaidAmount > 0)
+                {
+                    var paymentRecord = new Payment
+                    {
+                        CustomerId = customer.Id,
+                        Amount = request.PaidAmount,
+                        PaymentMode = string.IsNullOrWhiteSpace(request.PaymentMode) ? "Cash" : request.PaymentMode,
+                        PaymentDate = saleDate,
+                        ReferenceNumber = $"SALE-{sale.Id}",
+                        Notes = $"Payment received during Sale #{sale.Id}",
+                        PreviousBalance = customer.CurrentBalance,
+                        NewBalance = customer.CurrentBalance + balanceAmount,
+                        CreatedDate = DateTime.UtcNow
+                    };
+                    await _paymentRepository.AddAsync(paymentRecord);
                 }
 
                 // Update Customer Balance
@@ -289,6 +310,7 @@ namespace RiceBusinessApp.Application.Services
                 if (request.PaidAmount > newTotalAmount)
                     throw new Exception("Paid Amount cannot exceed Total Amount.");
 
+                decimal oldPaidAmount = sale.PaidAmount;
                 decimal newBalanceAmount = newTotalAmount - request.PaidAmount;
 
                 sale.TotalAmount = newTotalAmount;
@@ -297,6 +319,25 @@ namespace RiceBusinessApp.Application.Services
                 if (request.Notes != null) sale.Notes = request.Notes;
 
                 await _saleRepository.UpdateAsync(sale);
+
+                // If additional payment was made during update, record Payment entry
+                decimal additionalPaid = request.PaidAmount - oldPaidAmount;
+                if (additionalPaid > 0)
+                {
+                    var paymentRecord = new Payment
+                    {
+                        CustomerId = customer.Id,
+                        Amount = additionalPaid,
+                        PaymentMode = string.IsNullOrWhiteSpace(sale.PaymentMode) ? "Cash" : sale.PaymentMode,
+                        PaymentDate = DateTime.UtcNow,
+                        ReferenceNumber = $"SALE-{sale.Id}",
+                        Notes = $"Payment during Sale update #{sale.Id}",
+                        PreviousBalance = customer.CurrentBalance,
+                        NewBalance = customer.CurrentBalance + newBalanceAmount,
+                        CreatedDate = DateTime.UtcNow
+                    };
+                    await _paymentRepository.AddAsync(paymentRecord);
+                }
 
                 // Update Customer Balance
                 if (newBalanceAmount > 0)
