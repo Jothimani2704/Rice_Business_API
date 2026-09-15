@@ -121,6 +121,7 @@ namespace RiceBusinessApp.Application.Services
                 Id = payment.Id,
                 CustomerId = payment.CustomerId,
                 CustomerName = payment.Customer?.Name ?? string.Empty,
+                CustomerMobile = payment.Customer?.MobileNumber,
                 Amount = payment.Amount,
                 PreviousBalance = payment.PreviousBalance,
                 NewBalance = payment.NewBalance,

@@ -431,6 +431,7 @@ namespace RiceBusinessApp.Application.Services
                 Id = sale.Id,
                 CustomerId = sale.CustomerId,
                 CustomerName = sale.Customer?.Name ?? string.Empty,
+                CustomerPhone = sale.Customer?.MobileNumber ?? string.Empty,
                 SaleDate = sale.SaleDate,
                 TotalAmount = sale.TotalAmount,
                 PaidAmount = sale.PaidAmount,
