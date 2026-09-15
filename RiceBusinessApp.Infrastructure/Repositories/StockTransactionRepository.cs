@@ -34,7 +34,11 @@ namespace RiceBusinessApp.Infrastructure.Repositories
 
         public async Task<IEnumerable<StockTransaction>> GetHistoryByProductIdAsync(int productId) 
         {
-            return await _context.StockTransactions.Where(st => st.ProductId == productId).ToListAsync();
+            return await _context.StockTransactions
+                .Where(st => st.ProductId == productId)
+                .OrderByDescending(st => st.TransactionDate)
+                .ThenByDescending(st => st.Id)
+                .ToListAsync();
         }
 
         public async Task<StockTransaction> AddAsync(StockTransaction transaction) 
