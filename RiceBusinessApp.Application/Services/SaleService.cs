@@ -396,6 +396,9 @@ namespace RiceBusinessApp.Application.Services
 
         private SaleResponseDto MapToResponseDto(Sale sale)
         {
+            decimal currentBal = sale.Customer?.CurrentBalance ?? 0;
+            decimal prevBal = currentBal - sale.BalanceAmount;
+
             return new SaleResponseDto
             {
                 Id = sale.Id,
@@ -403,6 +406,8 @@ namespace RiceBusinessApp.Application.Services
                 CustomerName = sale.Customer?.Name ?? string.Empty,
                 CustomerPhone = sale.Customer?.MobileNumber ?? string.Empty,
                 CustomerAddress = sale.Customer?.Address ?? string.Empty,
+                CustomerCurrentBalance = currentBal,
+                PreviousBalance = prevBal,
                 SaleDate = sale.SaleDate,
                 TotalAmount = sale.TotalAmount,
                 PaidAmount = sale.PaidAmount,
