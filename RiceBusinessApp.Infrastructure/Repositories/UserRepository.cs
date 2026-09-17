@@ -17,7 +17,9 @@ namespace RiceBusinessApp.Infrastructure.Repositories
 
         public async Task<User?> GetUserByUsernameAsync(string username)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (string.IsNullOrWhiteSpace(username)) return null;
+            var trimmed = username.Trim().ToLower();
+            return await _context.Users.FirstOrDefaultAsync(u => u.Username.ToLower() == trimmed);
         }
 
         public async Task<User?> GetUserByIdAsync(int id)
