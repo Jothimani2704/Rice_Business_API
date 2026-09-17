@@ -28,7 +28,42 @@ namespace RiceBusinessApp.Application.Services
         {
             var user = await _userRepository.GetUserByUsernameAsync(request.Username);
             
-            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            if (user != null)
+            {
+                // Check if account is locked out
+                if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTime.UtcNow)
+                {
+                    var remainingSeconds = (int)Math.Ceiling((user.LockoutEnd.Value - DateTime.UtcNow).TotalSeconds);
+                    throw new Exception($"Account is temporarily locked. Please try again in {remainingSeconds} seconds.");
+                }
+
+                if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+                {
+                    user.FailedLoginAttempts++;
+                    if (user.FailedLoginAttempts >= 5)
+                    {
+                        user.LockoutEnd = DateTime.UtcNow.AddSeconds(60);
+                        user.FailedLoginAttempts = 0;
+                        await _userRepository.UpdateUserAsync(user);
+                        throw new Exception("Too many failed login attempts. Account locked for 60 seconds.");
+                    }
+                    else
+                    {
+                        await _userRepository.UpdateUserAsync(user);
+                        int remainingAttempts = 5 - user.FailedLoginAttempts;
+                        throw new Exception($"Invalid credentials. {remainingAttempts} attempt(s) remaining before lockout.");
+                    }
+                }
+
+                // Reset failed attempts on successful login
+                if (user.FailedLoginAttempts > 0 || user.LockoutEnd.HasValue)
+                {
+                    user.FailedLoginAttempts = 0;
+                    user.LockoutEnd = null;
+                    await _userRepository.UpdateUserAsync(user);
+                }
+            }
+            else
             {
                 throw new Exception("Invalid username or password");
             }

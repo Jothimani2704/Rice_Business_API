@@ -11,5 +11,7 @@ namespace RiceBusinessApp.Domain.Entities
         public string? ProfileImageUrl { get; set; }
         public string Role { get; set; } = "Admin";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public int FailedLoginAttempts { get; set; } = 0;
+        public DateTime? LockoutEnd { get; set; }
     }
 }
