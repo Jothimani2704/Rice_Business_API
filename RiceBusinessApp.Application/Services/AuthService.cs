@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -17,6 +18,7 @@ namespace RiceBusinessApp.Application.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly JwtSettings _jwtSettings;
+        private static readonly ConcurrentDictionary<string, (int attempts, DateTime? lockoutEnd)> _attemptTracker = new();
 
         public AuthService(IUserRepository userRepository, IOptions<JwtSettings> jwtSettings)
         {
@@ -26,46 +28,68 @@ namespace RiceBusinessApp.Application.Services
 
         public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
         {
-            var user = await _userRepository.GetUserByUsernameAsync(request.Username);
-            
-            if (user != null)
-            {
-                // Check if account is locked out
-                if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTime.UtcNow)
-                {
-                    var remainingSeconds = (int)Math.Ceiling((user.LockoutEnd.Value - DateTime.UtcNow).TotalSeconds);
-                    throw new Exception($"Account is temporarily locked. Please try again in {remainingSeconds} seconds.");
-                }
+            var key = request.Username?.Trim().ToLower() ?? "unknown";
 
-                if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            // 1. Check in-memory tracker lockout
+            if (_attemptTracker.TryGetValue(key, out var state) && state.lockoutEnd.HasValue && state.lockoutEnd.Value > DateTime.UtcNow)
+            {
+                var remainingSeconds = (int)Math.Ceiling((state.lockoutEnd.Value - DateTime.UtcNow).TotalSeconds);
+                throw new Exception($"Account is temporarily locked. Please try again in {remainingSeconds} seconds.");
+            }
+
+            var user = await _userRepository.GetUserByUsernameAsync(request.Username);
+
+            // 2. Check DB lockout if user exists
+            if (user != null && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTime.UtcNow)
+            {
+                var remainingSeconds = (int)Math.Ceiling((user.LockoutEnd.Value - DateTime.UtcNow).TotalSeconds);
+                throw new Exception($"Account is temporarily locked. Please try again in {remainingSeconds} seconds.");
+            }
+
+            // 3. Verify credentials
+            bool isValidPassword = user != null && BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
+
+            if (!isValidPassword)
+            {
+                int currentAttempts = state.attempts + 1;
+                if (user != null)
                 {
                     user.FailedLoginAttempts++;
-                    if (user.FailedLoginAttempts >= 5)
-                    {
-                        user.LockoutEnd = DateTime.UtcNow.AddSeconds(60);
-                        user.FailedLoginAttempts = 0;
-                        await _userRepository.UpdateUserAsync(user);
-                        throw new Exception("Too many failed login attempts. Account locked for 60 seconds.");
-                    }
-                    else
-                    {
-                        await _userRepository.UpdateUserAsync(user);
-                        int remainingAttempts = 5 - user.FailedLoginAttempts;
-                        throw new Exception($"Invalid credentials. {remainingAttempts} attempt(s) remaining before lockout.");
-                    }
                 }
 
-                // Reset failed attempts on successful login
-                if (user.FailedLoginAttempts > 0 || user.LockoutEnd.HasValue)
+                if (currentAttempts >= 5 || (user != null && user.FailedLoginAttempts >= 5))
                 {
-                    user.FailedLoginAttempts = 0;
-                    user.LockoutEnd = null;
+                    var lockoutTime = DateTime.UtcNow.AddSeconds(60);
+                    _attemptTracker[key] = (0, lockoutTime);
+
+                    if (user != null)
+                    {
+                        user.LockoutEnd = lockoutTime;
+                        user.FailedLoginAttempts = 0;
+                        await _userRepository.UpdateUserAsync(user);
+                    }
+
+                    throw new Exception("Too many failed login attempts. Account locked for 60 seconds.");
+                }
+
+                _attemptTracker[key] = (currentAttempts, null);
+
+                if (user != null)
+                {
                     await _userRepository.UpdateUserAsync(user);
                 }
+
+                int remainingAttempts = 5 - currentAttempts;
+                throw new Exception($"Invalid credentials. {remainingAttempts} attempt(s) remaining before lockout.");
             }
-            else
+
+            // 4. Successful login: Reset attempts
+            _attemptTracker.TryRemove(key, out _);
+            if (user != null && (user.FailedLoginAttempts > 0 || user.LockoutEnd.HasValue))
             {
-                throw new Exception("Invalid username or password");
+                user.FailedLoginAttempts = 0;
+                user.LockoutEnd = null;
+                await _userRepository.UpdateUserAsync(user);
             }
 
             var token = GenerateJwtToken(user);
