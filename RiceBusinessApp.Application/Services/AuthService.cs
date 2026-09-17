@@ -187,6 +187,24 @@ namespace RiceBusinessApp.Application.Services
             };
         }
 
+        public async Task<bool> ResetPasswordAsync(ResetPasswordRequestDto request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.NewPassword))
+            {
+                throw new Exception("Username and new password are required.");
+            }
+
+            var user = await _userRepository.GetUserByUsernameAsync(request.Username);
+            if (user == null)
+            {
+                throw new Exception("User with the given username was not found.");
+            }
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            await _userRepository.UpdateUserAsync(user);
+            return true;
+        }
+
         private string GenerateJwtToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();

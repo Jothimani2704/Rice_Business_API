@@ -113,5 +113,19 @@ namespace RiceBusinessApp.Api.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto request)
+        {
+            try
+            {
+                var result = await _authService.ResetPasswordAsync(request);
+                return Ok(new { message = "Password reset successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

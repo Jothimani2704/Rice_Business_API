@@ -11,5 +11,6 @@ namespace RiceBusinessApp.Application.Services
         Task<UserResponseDto?> GetCurrentUserAsync(int userId);
         Task<UserResponseDto> UpdateProfileAsync(int userId, UpdateProfileRequestDto request);
         Task<UserResponseDto> UploadProfileImageAsync(int userId, Stream fileStream, string fileName);
+        Task<bool> ResetPasswordAsync(ResetPasswordRequestDto request);
     }
 }
